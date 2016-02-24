@@ -7,6 +7,14 @@ Author: Simon Wheatley
 Version: 1.5
 Author URI: http://simonwheatley.co.uk/wordpress/
 */
+/*
+Modified by: Deepti Boddapati
+Added functionality to allow a custom post type to have several templates and for a template to be attached to a single post type.
+Custom post types without any templates not have post templates to choose from. 
+Templates without a specified post type will be available for only for the post posttype.
+
+*/
+
 
 /*  Copyright 2008 Simon Wheatley
 
@@ -158,7 +166,7 @@ class CustomPostTemplates extends CustomPostTemplates_Plugin
 		$custom_template = get_post_meta( $this->post_ID, $this->tpl_meta_key, true );
 		return $custom_template;
 	}
-
+//Deepti: I changed this part of the code only. 
 	protected function get_post_templates() 
 	{
 		$theme = wp_get_theme();
@@ -173,12 +181,38 @@ class CustomPostTemplates extends CustomPostTemplates_Plugin
 		$post_templates = array();
 
 		$files = (array) $theme->get_files( 'php', 1 );
-
+		//get post type of the post being edited
+		$post_type= get_post_type();
+		$post_type_singular_name = get_post_type_object( $post_type )->labels->singular_name;
+	
 		foreach ( $files as $file => $full_path ) {
-			$headers = get_file_data( $full_path, array( 'Template Name Posts' => 'Template Name Posts' ) );
-			if ( empty( $headers['Template Name Posts'] ) )
-				continue;
-			$post_templates[ $file ] = $headers['Template Name Posts'];
+			$headers = get_file_data( $full_path, array( 'Template Name Posts' => 'Template Name Posts',
+			'Post Type'=>  'Post Type' ) );
+			//Dee: check for new header 'Post Type'
+			$fileheaderposttype = $headers['Post Type'];
+			//if post_type is 'post' and there is no file header post type or it is post
+			//then add the template name to the dropdown list
+			if ($post_type =='post'){
+				if ( empty( $fileheaderposttype ) or $fileheaderposttype == 'post'){
+					if ( empty( $headers['Template Name Posts'] ) )
+						continue;
+					//else
+					$post_templates[ $file ] = $headers['Template Name Posts'];	
+				}
+			}
+			//if there is a post type and no template name, name the template with the post type name
+			elseif($post_type == $fileheaderposttype){
+			if ( empty( $headers['Template Name Posts'] ) ){
+				$post_templates[ $file ] = 'Default '.$post_type_singular_name;
+			}
+			//else add the template name to the list.
+			else{
+				$post_templates[ $file ] = $headers['Template Name Posts'];
+			}
+			
+			}
+
+			
 		}
 
 		return $post_templates;
