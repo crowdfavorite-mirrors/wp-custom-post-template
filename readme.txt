@@ -1,3 +1,18 @@
+=== Custom Post Template with Custom Post type specific templates ===
+Add Post Type: your-custom-post-type-slug in the header 
+
+<?php
+/*
+Template Name Posts: Snarfer
+Post Type: portfolio
+*/
+?>
+
+Custom post types won't have the list of drop-down templates unless you specify a Post Type
+You can have multiple post templates per post type
+Templates without a Post Type header will be available for 'post'
+
+
 === Custom Post Template ===
 Contributors: simonwheatley
 Donate link: http://www.simonwheatley.co.uk/wordpress/
